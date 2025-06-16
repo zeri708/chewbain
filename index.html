@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chewbain - Kencan Seru dalam Kotak!</title>
+    <!-- Chosen Palette: Sweet Cookie Dream -->
+    <!-- Application Structure Plan: Saya merancang SPA ini sebagai perjalanan naratif tunggal dari atas ke bawah. Dimulai dengan "Hook" yang kuat (masalah & solusi), lalu menyelam ke detail masalah dengan data, memperkenalkan produk sebagai "solusi" melalui tab interaktif, menyajikan lebih banyak data pendukung melalui bagan interaktif, menargetkan audiens secara personal, dan diakhiri dengan CTA yang jelas serta FAQ. Struktur ini dipilih untuk membangun momentum dan meyakinkan pengguna secara bertahap, dari kesadaran masalah hingga keinginan untuk membeli, yang lebih efektif untuk landing page konversi daripada struktur laporan formal. -->
+    <!-- Visualization & Content Choices: 1. Masalah Phubbing: Info (Statistik Penggunaan Ponsel) -> Goal (Menarik Perhatian) -> Method (Teks besar & tebal) -> Interaction (None) -> Justification (Angka yang mencolok lebih efektif dari bagan di awal). 2. Isi Kotak: Info (5 komponen kit) -> Goal (Eksplorasi Produk) -> Method (Tab interaktif HTML/JS dengan gambar) -> Interaction (Klik untuk menampilkan detail) -> Justification (Lebih menarik & interaktif daripada daftar statis). 3. Data Survei: Info (70% & 53.3% data) -> Goal (Memberi Bukti) -> Method (Bagan Donat Chart.js) -> Interaction (Hover tooltips) -> Justification (Visualisasi proporsi yang jelas dan cepat dipahami). 4. FAQ: Info (Pertanyaan Umum) -> Goal (Mengatasi Keraguan) -> Method (Accordion HTML <details>) -> Interaction (Klik untuk membuka/menutup) -> Justification (UI bersih & hemat ruang). Semua dibuat dengan HTML/CSS/Canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FFFBEB; /* Lighter Pastel Yellow */
+            color: #7B5E57; /* Cookie Brown */
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 40vh;
+        }
+        .tab-active {
+            background-color: #FF99AA; /* Bubblegum Pink */
+            color: #FFFFFF;
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 153, 170, 0.4);
+        }
+        .tab-inactive {
+            background-color: #FFFFFF;
+            color: #7B5E57;
+        }
+        .btn-primary {
+            background-color: #FF99AA; /* Bubblegum Pink */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 20px rgba(255, 153, 170, 0.5);
+        }
+        .card {
+            background-color: white;
+            border-radius: 2rem; /* high radius */
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(123, 94, 87, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(123, 94, 87, 0.15);
+        }
+        summary::-webkit-details-marker {
+          display: none;
+        }
+    </style>
+</head>
+<body class="bg-[#FFFBEB] text-[#7B5E57]">
+
+    <!-- Header & Navigasi -->
+    <header id="header" class="bg-[#FFFBEB]/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-extrabold text-[#FF99AA]">Chewbain🍪</a>
+            <nav class="hidden md:flex space-x-8 font-bold">
+                <a href="#masalah" class="hover:text-[#FF99AA] transition-colors">Masalahnya?</a>
+                <a href="#solusi" class="hover:text-[#FF99AA] transition-colors">Solusinya!</a>
+                <a href="#data" class="hover:text-[#FF99AA] transition-colors">Buktinya?</a>
+                <a href="#faq" class="hover:text-[#FF99AA] transition-colors">FAQ</a>
+            </nav>
+            <a href="#pesan" class="hidden md:block btn-primary px-6 py-2 rounded-full font-bold">Pesan Yuk!</a>
+             <button id="mobile-menu-button" class="md:hidden text-3xl font-bold">☰</button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-[#FFFBEB] shadow-lg">
+             <a href="#masalah" class="block text-center py-3 hover:bg-[#F9F160]">Masalahnya?</a>
+             <a href="#solusi" class="block text-center py-3 hover:bg-[#F9F160]">Solusinya!</a>
+             <a href="#data" class="block text-center py-3 hover:bg-[#F9F160]">Buktinya?</a>
+             <a href="#faq" class="block text-center py-3 hover:bg-[#F9F160]">FAQ</a>
+             <a href="#pesan" class="block text-center py-4 bg-[#FF99AA] text-white font-bold hover:bg-opacity-90">Pesan Yuk!</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="py-20 md:py-32 bg-[#F9F160]">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-[#7B5E57] mb-4">Ponsel Jadi Orang Ketiga? 😱</h1>
+                <p class="text-lg md:text-2xl mb-8 max-w-3xl mx-auto font-semibold">Saatnya main bareng lagi! Chewbain itu DIT kit buat seru-seruan tanpa terganggu layar.</p>
+                <a href="#solusi" class="btn-primary inline-block px-10 py-4 rounded-full text-lg font-bold shadow-lg">Intip Isi Kotaknya! 💖</a>
+            </div>
+        </section>
+
+        <!-- Masalah -->
+        <section id="masalah" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Asyik Sendiri Sama Layar Itu Nyata!</h2>
+                    <p class="max-w-3xl mx-auto text-lg">Kamu nggak sendiri! Fenomena ini namanya *phubbing*, dan dampaknya bikin hubungan jadi renggang, lho.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                    <div class="card">
+                        <p class="text-6xl md:text-7xl font-extrabold text-[#DAEFF2] mb-4">#1</p>
+                        <h3 class="text-2xl font-extrabold mb-2">Juara Dunia Main HP</h3>
+                        <p>Orang Indonesia itu paling lama main HP, rata-rata <span class="font-bold">6.05 jam per hari</span>. Jadi berasa jauh walau duduknya deketan.</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-6xl md:text-7xl font-extrabold text-[#FF99AA] mb-4">70%</p>
+                        <h3 class="text-2xl font-extrabold mb-2">Merasa Dicuekin</h3>
+                        <p>7 dari 10 pasangan ngaku keganggu sama HP pas lagi *quality time*. Bikin momen spesial jadi hambar.</p>
+                    </div>
+                </div>
+                 <div class="text-center mt-16">
+                     <p class="text-xl italic font-semibold max-w-3xl mx-auto p-6 bg-white rounded-3xl shadow-sm">"Udah pusing mikirin 'mau ngapain malam ini?', eh malah sibuk sama HP masing-masing. Chewbain hadir buat motong siklus bosen itu!"</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solusi -->
+        <section id="solusi" class="py-16 md:py-24 bg-[#DAEFF2]">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12 text-[#7B5E57]">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Ini Dia Chewbain: Kotak Anti Gabut! 🎁</h2>
+                    <p class="max-w-3xl mx-auto text-lg font-semibold">Bukan DIY (Do-It-Yourself), tapi DIT (Do-It-Together). Satu kotak, lima kegiatan super seru buat ketawa bareng!</p>
+                </div>
+                
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-8">
+                        <button data-tab="tab1" class="tab-button tab-active text-sm md:text-base font-bold py-3 px-5 rounded-full transition-all duration-300 shadow-md">🍪 Hias Cookies</button>
+                        <button data-tab="tab2" class="tab-button tab-inactive text-sm md:text-base font-bold py-3 px-5 rounded-full transition-all duration-300 shadow-md">🃏 Kartu TOD+UNO</button>
+                        <button data-tab="tab3" class="tab-button tab-inactive text-sm md:text-base font-bold py-3 px-5 rounded-full transition-all duration-300 shadow-md">🤖 Paper Craft</button>
+                        <button data-tab="tab4" class="tab-button tab-inactive text-sm md:text-base font-bold py-3 px-5 rounded-full transition-all duration-300 shadow-md">✨ Sticker Lucu</button>
+                         <button data-tab="tab5" class="tab-button tab-inactive text-sm md:text-base font-bold py-3 px-5 rounded-full transition-all duration-300 shadow-md">♻️ Kotak Ajaib</button>
+                    </div>
+                    
+                    <div id="tab-content" class="card min-h-[420px] md:min-h-[350px] transition-all duration-500">
+                        <div id="tab1" class="tab-pane active">
+                             <div class="grid md:grid-cols-2 gap-6 items-center">
+                                <img src="https://placehold.co/400x300/FF99AA/FFFFFF?text=Hias+Cookies+%F0%9F%8D%AA" alt="Hias Cookies" class="rounded-2xl w-full">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold mb-4 text-[#FF99AA]">Jadi Chef & Seniman Dadakan!</h3>
+                                    <p class="text-lg">Adu kreatif hias cookies! Ada 2 cookies, 3 warna icing, plus sprinkles warna-warni. Siapa jago hias, siapa jago cicip? Semuanya seru!</p>
+                                </div>
+                             </div>
+                        </div>
+                        <div id="tab2" class="tab-pane hidden">
+                             <div class="grid md:grid-cols-2 gap-6 items-center">
+                                <img src="https://placehold.co/400x300/F9F160/7B5E57?text=Kartu+TOD%2BUNO+%F0%9F%83%8F" alt="Kartu TOD+UNO" class="rounded-2xl w-full">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold mb-4 text-[#FF99AA]">Main Kartu, Buka-bukaan!</h3>
+                                    <p class="text-lg">Satu set kartu buat dua game. Adu strategi di UNO, terus balik kartunya buat main Truth or Dare yang bikin ngakak dan makin deket!</p>
+                                </div>
+                             </div>
+                        </div>
+                        <div id="tab3" class="tab-pane hidden">
+                            <div class="grid md:grid-cols-2 gap-6 items-center">
+                                <img src="https://placehold.co/400x300/FF99AA/FFFFFF?text=Paper+Craft+%F0%9F%A4%96" alt="Paper Craft" class="rounded-2xl w-full">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold mb-4 text-[#FF99AA]">Bikin Maskot Kenangan Kalian!</h3>
+                                    <p class="text-lg">Fokus bareng ngerakit paper craft 3D gemes ini. Hasilnya? Kenang-kenangan lucu yang kalian buat dari nol. So sweet!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab4" class="tab-pane hidden">
+                             <div class="grid md:grid-cols-2 gap-6 items-center">
+                                <img src="https://placehold.co/400x300/F9F160/7B5E57?text=Sticker+Lucu+%E2%9C%A8" alt="Sticker Lucu" class="rounded-2xl w-full">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold mb-4 text-[#FF99AA]">Tempel-tempel Bikin Kece!</h3>
+                                    <p class="text-lg">Satu set stiker vinil tahan air dengan desain orisinal. Cocok buat hias jurnal, laptop, atau tumblermu. Pamerin gayamu!</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div id="tab5" class="tab-pane hidden">
+                            <div class="grid md:grid-cols-2 gap-6 items-center">
+                                <img src="https://placehold.co/400x300/FF99AA/FFFFFF?text=Kotak+Jurnal+%E2%99%BB%EF%B8%8F" alt="Kotak Jurnal" class="rounded-2xl w-full">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold mb-4 text-[#FF99AA]">Dari Kotak Jadi Jurnal!</h3>
+                                    <p class="text-lg">Jangan buang kotaknya! Sulap jadi 'junk journal' buat simpen semua kenangan kencan kalian. Ada kartu ucapan juga buat kenalan sama seniman lokal di balik kit ini.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Data Section -->
+        <section id="data" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Dua Masalah, Satu Solusi Jitu!</h2>
+                    <p class="max-w-3xl mx-auto text-lg">Data kami nunjukkin 2 tantangan utama pasangan zaman now. Chewbain jawab semuanya!</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+                    <div class="card text-center">
+                        <h3 class="text-xl md:text-2xl font-extrabold mb-4">Ponsel si Pengganggu No. 1</h3>
+                        <div class="chart-container">
+                             <canvas id="distractionChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-base md:text-lg font-bold">70% pasangan ngerasa keganggu sama HP.</p>
+                    </div>
+                     <div class="card text-center">
+                        <h3 class="text-xl md:text-2xl font-extrabold mb-4">Mati Gaya Kurang Ide Kencan</h3>
+                         <div class="chart-container">
+                            <canvas id="ideasChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-base md:text-lg font-bold">53.3% pasangan bingung mau ngapain.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- CTA Section -->
+        <section id="pesan" class="py-16 md:py-24 bg-[#F9F160]">
+            <div class="container mx-auto px-6 text-center">
+                 <div class="max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-[#FF99AA]">Udah Siap Buat #DITChewbainDit?</h2>
+                    <p class="text-lg mb-6 font-semibold">Sebuah investasi buat hubunganmu jadi makin seru. Satu kotak penuh ketawa dan kenangan!</p>
+                    <div class="text-5xl font-extrabold mb-6">Rp120.000</div>
+                    <a href="#" class="btn-primary w-full block px-10 py-4 rounded-full text-xl font-bold">Gas, Pre-Order Sekarang!</a>
+                    <p class="mt-4 text-sm text-gray-500">Sistemnya Pre-Order per batch ya, biar kualitasnya juara. Follow medsos kami buat info jadwalnya!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-16 md:py-24">
+            <div class="container mx-auto px-6 max-w-3xl">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12">Yang Sering Ditanyain (FAQ)</h2>
+                <div class="space-y-4">
+                    <details class="group bg-white p-6 rounded-3xl shadow-sm">
+                        <summary class="flex justify-between items-center font-bold cursor-pointer text-lg">
+                            <span>Phubbing itu apa sih? Bahaya?</span>
+                            <span class="transform transition-transform duration-300 group-open:rotate-180 text-2xl text-[#FF99AA]">💖</span>
+                        </summary>
+                        <p class="mt-4 text-gray-700">
+                            Phubbing itu singkatnya nyuekin orang demi HP. Kelihatannya sepele, tapi bisa bikin pasangan ngerasa gak dihargai dan bikin hubungan jadi renggang. Kit kami itu cara asyik buat lawan ini!
+                        </p>
+                    </details>
+                    <details class="group bg-white p-6 rounded-3xl shadow-sm">
+                        <summary class="flex justify-between items-center font-bold cursor-pointer text-lg">
+                            <span>Beda Chewbain sama kit lain apa?</span>
+                             <span class="transform transition-transform duration-300 group-open:rotate-180 text-2xl text-[#FF99AA]">💖</span>
+                        </summary>
+                        <p class="mt-4 text-gray-700">
+                            Gampangnya: <b>Isinya Rame, Desainnya Asli, Tujuannya Jelas.</b> Kamu dapet banyak kegiatan seru, semua desainnya 100% orisinal dari seniman lokal, dan tujuannya buat bikin kalian makin deket. Bukan cuma kerajinan biasa!
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#A9746E] text-white pt-12 pb-8">
+        <div class="container mx-auto px-6 text-center">
+             <p class="text-2xl font-extrabold mb-2">Chewbain🍪</p>
+             <p class="font-semibold">&copy; 2024 Chewbain. Waktunya main bareng lagi.</p>
+             <div class="flex justify-center space-x-6 mt-4 font-bold">
+                <a href="#" class="hover:text-[#F9F160]">Instagram</a>
+                <a href="#" class="hover:text-[#F9F160]">TikTok</a>
+                <a href="#" class="hover:text-[#F9F160]">WhatsApp</a>
+             </div>
+        </div>
+        
+        <!-- Academic Project Section -->
+        <div id="academic-info" class="container mx-auto px-6 max-w-3xl mt-12">
+            <h2 class="text-xl font-extrabold text-center mb-6 text-white border-t border-white/20 pt-8">Informasi Proyek Akademik</h2>
+            <div class="space-y-3">
+                <details class="group bg-white/10 p-4 rounded-xl">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer text-lg text-white">
+                        <span>1. & 2. Info Kelas & Kelompok</span>
+                        <span class="transform transition-transform duration-300 group-open:rotate-180">▼</span>
+                    </summary>
+                    <div class="mt-4 text-white/80 space-y-2">
+                        <p><strong>Judul Kelas:</strong> Manajemen Proyek Digital</p>
+                        <p><strong>Nama Kelompok:</strong> [Nama Kelompok Anda]</p>
+                        <p><strong>Semester:</strong> [Semester Anda]</p>
+                    </div>
+                </details>
+                 <details class="group bg-white/10 p-4 rounded-xl">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer text-lg text-white">
+                        <span>6. Tanggal Pengumpulan</span>
+                        <span class="transform transition-transform duration-300 group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="mt-4 text-white/80">
+                        <strong>Due Date:</strong> [Tanggal Pengumpulan Anda]
+                    </p>
+                </details>
+                <details class="group bg-white/10 p-4 rounded-xl">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer text-lg text-white">
+                        <span>7. Rubrik Penilaian</span>
+                        <span class="transform transition-transform duration-300 group-open:rotate-180">▼</span>
+                    </summary>
+                    <ul class="mt-4 text-white/80 list-disc list-inside space-y-1">
+                        <li><strong>Kelengkapan Konten:</strong> Semua bagian utama informatif.</li>
+                        <li><strong>Desain & Estetika:</strong> Tampilan menarik, bersih, dan konsisten.</li>
+                        <li><strong>Navigasi & Fungsionalitas:</strong> Mudah digunakan, link berfungsi.</li>
+                        <li><strong>Pemanfaatan Fitur:</strong> Fitur interaktif (chart, tabs) digunakan efektif.</li>
+                        <li><strong>Inovasi:</strong> Kreativitas dalam menyajikan informasi.</li>
+                        <li><strong>Kesesuaian Tujuan:</strong> Memenuhi fungsi sebagai pusat informasi proyek.</li>
+                    </ul>
+                </details>
+                <details class="group bg-white/10 p-4 rounded-xl">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer text-lg text-white">
+                        <span>9. Link Diskusi Eksternal</span>
+                        <span class="transform transition-transform duration-300 group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="mt-4 text-white/80">
+                       <a href="#" class="underline hover:text-[#F9F160]">Bergabung di Grup Diskusi Proyek (WhatsApp)</a>
+                    </p>
+                </details>
+                 <details class="group bg-white/10 p-4 rounded-xl">
+                    <summary class="flex justify-between items-center font-bold cursor-pointer text-lg text-white">
+                        <span>10. Daftar Referensi (Optional)</span>
+                        <span class="transform transition-transform duration-300 group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="mt-4 text-white/80">
+                       Referensi utama untuk proyek ini adalah proposal P2MW "Chewbain" dan data internal yang terkandung di dalamnya.
+                    </p>
+                </details>
+            </div>
+        </div>
+
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('tab-inactive');
+                    });
+                    button.classList.add('tab-active');
+                    button.classList.remove('tab-inactive');
+                    tabPanes.forEach(pane => {
+                        pane.classList.toggle('hidden', pane.id !== tabId);
+                    });
+                });
+            });
+
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#7B5E57',
+                        bodyColor: '#7B5E57',
+                        bodyFont: { weight: 'bold', size: 14 },
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: (context) => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            };
+
+            const distractionCtx = document.getElementById('distractionChart')?.getContext('2d');
+            if (distractionCtx) {
+                 new Chart(distractionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Ponsel Mengganggu', 'Aman'],
+                        datasets: [{
+                            data: [70, 30],
+                            backgroundColor: ['#FF99AA', '#FFFBEB'],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 8,
+                            hoverBorderColor: '#7B5E57'
+                        }]
+                    },
+                    options: commonChartOptions
+                });
+            }
+
+            const ideasCtx = document.getElementById('ideasChart')?.getContext('2d');
+            if (ideasCtx) {
+                 new Chart(ideasCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sulit Cari Ide', 'Gampang!'],
+                        datasets: [{
+                            data: [53.3, 46.7],
+                            backgroundColor: ['#DAEFF2', '#FFFBEB'],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 8,
+                            hoverBorderColor: '#7B5E57'
+                        }]
+                    },
+                    options: commonChartOptions
+                });
+            }
+        });
+    </script>
+</body>
+</html>
